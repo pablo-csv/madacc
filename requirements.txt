@@ -1,0 +1,4 @@
+nest_asyncio
+streamlit
+google-genai
+google-cloud-aiplatform

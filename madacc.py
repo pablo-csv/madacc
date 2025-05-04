@@ -246,14 +246,8 @@ else:
             # 3) ESTADÍSTICAS DE PELIGROSIDAD PARA LA RUTA
             # ------------------------------------------------------------
     
-            # distancias acumuladas (metros) entre puntos consecutivos
-            d_acum = [0]
-            for i in range(1, len(puntos_ruta)):
-                d = ox.distance.great_circle_vec(
-                        puntos_ruta[i-1][0], puntos_ruta[i-1][1],
-                        puntos_ruta[i  ][0], puntos_ruta[i  ][1]
-                    )
-                d_acum.append(d_acum[-1] + d)
+            # índice de puntos en la ruta
+            d_acum = list(range(len(puntos_ruta)))
     
             # peligrosidad por punto (combinación lineal sencilla)
             w_cl, w_100, w_10 = 3, 0.5, 2          # pesos ajustables
@@ -269,10 +263,11 @@ else:
     
             # gráfico de línea
             df_line = pd.DataFrame({
-                "Distancia (m)": d_acum,
+                "Punto de ruta": d_acum,
                 "Peligrosidad (zona)":  pel_zona,
                 "Peligrosidad (lugar)": pel_lugar,
-            }).set_index("Distancia (m)")
+            }).set_index("Punto de ruta")
+
             st.line_chart(df_line)
     
             # gráfico circular con tipos de accidente (puntos con aviso)

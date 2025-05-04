@@ -253,12 +253,12 @@ else:
         d_acum = list(range(len(puntos_ruta)))
     
         # pesos
-        w_cl, w_100, w_10 = 30, 1, 2
+        w_cl, w_100, w_10 = 0, 1, 2   # los pesos pueden cambiarse
         
         # extraer variables por punto
         pel_clus  = np.array([p["n_clusteres"]   for p in info])
-        pel_100   = np.array([p["num_accs_100"]  for p in info])
-        pel_10    = np.array([p["num_accs_10"]*100   for p in info])
+        pel_100   = np.array([10_000 * (p["num_accs_100"]/(3.1415*(100**2)))  for p in info])
+        pel_10    = np.array([10_000 * (p["num_accs_10"]/(3.1415*(10**2)))   for p in info])
         
         # score por punto
         score_punto = w_cl * pel_clus + w_100 * pel_100 + w_10 * pel_10
@@ -274,8 +274,8 @@ else:
         df_line = pd.DataFrame({
             "Punto de ruta": d_acum,
             #"Peligrosidad combinada": score_punto,
-            "Peligrosidad (100 m)":   pel_100,
-            "Peligrosidad (10 m)":    pel_10,
+            "Siniestralidad (100 m alrededor)":   pel_100,
+            "Siniestralidad (10 m alrededor)":    pel_10,
         }).set_index("Punto de ruta")
         
         st.line_chart(df_line)

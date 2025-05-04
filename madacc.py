@@ -21,6 +21,7 @@ import geopandas as gpd
 import numpy as np
 import pyproj
 from shapely.geometry import Point
+import matplotlib.pyplot as plt           # para los gráficos
 
 from google import genai          # ← credenciales ya configuradas
 from google.genai import types
@@ -231,6 +232,59 @@ else:
     time.sleep(0.1)
     st_folium(route_map, height=600, width=800, returned_objects=[])   # el returned_objects=[] es ESENCIAL para que el mapa no se siga actualizando
 
-    if st.button("🔄 Nueva ruta"):
-        st.session_state["origin"] = st.session_state["destination"] = None
-        st.rerun()
+    # botones: nueva ruta y estadísticas
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("🔄 Nueva ruta"):
+            st.session_state["origin"] = st.session_state["destination"] = None
+            st.rerun()
+    
+    with col2:
+        if st.button("📊 Generar estadísticas"):
+            # ------------------------------------------------------------
+            # 3) ESTADÍSTICAS DE PELIGROSIDAD PARA LA RUTA
+            # ------------------------------------------------------------
+    
+            # distancias acumuladas (metros) entre puntos consecutivos
+            d_acum = [0]
+            for i in range(1, len(puntos_ruta)):
+                d = ox.distance.great_circle_vec(
+                        puntos_ruta[i-1][0], puntos_ruta[i-1][1],
+                        puntos_ruta[i  ][0], puntos_ruta[i  ][1]
+                    )
+                d_acum.append(d_acum[-1] + d)
+    
+            # peligrosidad por punto (combinación lineal sencilla)
+            w_cl, w_100, w_10 = 3, 0.5, 2          # pesos ajustables
+            pel_zona  = np.array([p["n_clusteres"]                 for p in info])
+            pel_lugar = np.array([p["num_accs_10"]                 for p in info])
+            pel_comb  = w_cl*pel_zona + w_100*np.array([p["num_accs_100"] for p in info]) + w_10*pel_lugar
+    
+            # score global de la ruta (0–100)
+            score = np.clip(100 * pel_comb.mean() / pel_comb.max(), 0, 100)
+    
+            st.subheader("📈 Estadísticas de siniestralidad")
+            st.markdown(f"**Índice global de peligrosidad de la ruta:** `{score:0.1f}/100` (más alto ⇒ más peligrosa)")
+    
+            # gráfico de línea
+            df_line = pd.DataFrame({
+                "Distancia (m)": d_acum,
+                "Peligrosidad (zona)":  pel_zona,
+                "Peligrosidad (lugar)": pel_lugar,
+            }).set_index("Distancia (m)")
+            st.line_chart(df_line)
+    
+            # gráfico circular con tipos de accidente (puntos con aviso)
+            tipos_tot = {}
+            for p in peligrosos:                 # solo los puntos marcados con aviso
+                for k, v in p["tipos_100"].items():
+                    tipos_tot[k] = tipos_tot.get(k, 0) + v
+            if tipos_tot:
+                fig, ax = plt.subplots()
+                ax.pie(tipos_tot.values(), labels=tipos_tot.keys(), autopct="%1.0f%%", startangle=90)
+                ax.set_title("Distribución de tipos de accidente")
+                ax.axis("equal")
+                st.pyplot(fig)
+            else:
+                st.info("No hay datos suficientes de tipos de accidente para esta ruta.")

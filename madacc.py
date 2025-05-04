@@ -199,7 +199,7 @@ else:
         # filtrar y ordenar por riesgo
         peligrosos = [p for p in info if p["n_clusteres"] > 0]
         peligrosos.sort(key=lambda p: (-p["n_clusteres"], -p["num_accs_10"], -p["num_accs_100"], -p["imp_10"], -p["imp_100"]))
-        top = peligrosos[:1]
+        top = peligrosos[:3]   # puede cambiarse en función de la demo
 
         # avisos Gemini
         for p in top:

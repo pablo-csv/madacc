@@ -146,10 +146,10 @@ if not (st.session_state["origin"] and st.session_state["destination"]):
         lat, lon = out["last_clicked"]["lat"], out["last_clicked"]["lng"]
         if st.session_state["origin"] is None:
             st.session_state["origin"] = (lat, lon)
-            st.experimental_rerun()
+            st.rerun()
         elif st.session_state["destination"] is None:
             st.session_state["destination"] = (lat, lon)
-            st.experimental_rerun()
+            st.rerun()
 
 # ---------------------------------------------------------------------------
 # 2) CALCULAR RUTA Y MOSTRARLA ───────────────────── cuando ya hay origen y destino
@@ -220,4 +220,4 @@ else:
 
     if st.button("🔄 Nueva ruta"):
         st.session_state["origin"] = st.session_state["destination"] = None
-        st.experimental_rerun()
+        st.rerun()

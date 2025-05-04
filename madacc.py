@@ -253,15 +253,15 @@ else:
         d_acum = list(range(len(puntos_ruta)))
     
         # pesos
-        w_cl, w_100, w_10 = 10, 1, 5
+        w_cl, w_100, w_10 = 10, 1, 2
         
         # extraer variables por punto
-        pel_zona  = np.array([p["n_clusteres"]   for p in info])
+        pel_clus  = np.array([p["n_clusteres"]   for p in info])
         pel_100   = np.array([p["num_accs_100"]  for p in info])
-        pel_10    = np.array([p["num_accs_10"]   for p in info])
+        pel_10    = np.array([p["num_accs_10"]*100   for p in info])
         
         # score por punto
-        score_punto = w_cl * pel_zona + w_100 * pel_100 + w_10 * pel_10
+        score_punto = w_cl * pel_clus + w_100 * pel_100 + w_10 * pel_10
         
         # score global como media
         score = score_punto.mean()

@@ -232,54 +232,60 @@ else:
     time.sleep(0.1)
     st_folium(route_map, height=600, width=800, returned_objects=[])   # el returned_objects=[] es ESENCIAL para que el mapa no se siga actualizando
 
-    # botones: nueva ruta y estadísticas
-    col1, col2 = st.columns(2)
+    # ───────────────────────────────────────────────
+    # BOTONES: «Nueva ruta» y «Generar estadísticas»
+    # ───────────────────────────────────────────────
+    col_btn1, col_btn2 = st.columns([1, 1], gap="small")
     
-    with col1:
+    with col_btn1:
         if st.button("🔄 Nueva ruta"):
             st.session_state["origin"] = st.session_state["destination"] = None
             st.rerun()
     
-    with col2:
-        if st.button("📊 Generar estadísticas"):
-            # ------------------------------------------------------------
-            # 3) ESTADÍSTICAS DE PELIGROSIDAD PARA LA RUTA
-            # ------------------------------------------------------------
+    with col_btn2:
+        generate_stats = st.button("📊 Generar estadísticas")
     
-            # índice de puntos en la ruta
-            d_acum = list(range(len(puntos_ruta)))
+    # ───────────────────────────────────────────────
+    # ESTADÍSTICAS (fuera de las columnas ⇒ ancho completo)
+    # ───────────────────────────────────────────────
+    if generate_stats:
+        # índice de puntos en la ruta
+        d_acum = list(range(len(puntos_ruta)))
     
-            # peligrosidad por punto (combinación lineal sencilla)
-            w_cl, w_100, w_10 = 3, 0.5, 2          # pesos ajustables
-            pel_zona  = np.array([p["n_clusteres"]                 for p in info])
-            pel_lugar = np.array([p["num_accs_10"]                 for p in info])
-            pel_comb  = w_cl*pel_zona + w_100*np.array([p["num_accs_100"] for p in info]) + w_10*pel_lugar
+        # peligrosidad por punto
+        w_cl, w_100, w_10 = 3, 0.5, 2
+        pel_zona  = np.array([p["n_clusteres"]   for p in info])
+        pel_lugar = np.array([p["num_accs_10"]   for p in info])
+        pel_comb  = w_cl*pel_zona + w_100*np.array([p["num_accs_100"] for p in info]) + w_10*pel_lugar
     
-            # score global de la ruta (0–100)
-            score = np.clip(100 * pel_comb.mean() / pel_comb.max(), 0, 100)
+        # score global de la ruta (0–100)
+        score = np.clip(100 * pel_comb.mean() / pel_comb.max(), 0, 100)
     
-            st.subheader("📈 Estadísticas de siniestralidad")
-            st.markdown(f"**Índice global de peligrosidad de la ruta:** `{score:0.1f}/100` (más alto ⇒ más peligrosa)")
+        # ── panel de resultados ─────────────────────
+        st.subheader("📈 Estadísticas de siniestralidad")
+        st.markdown(f"**Índice global de peligrosidad de la ruta:** `{score:0.1f}/100` (más alto ⇒ más peligrosa)")
     
-            # gráfico de línea
-            df_line = pd.DataFrame({
-                "Punto de ruta": d_acum,
-                "Peligrosidad (zona)":  pel_zona,
-                "Peligrosidad (lugar)": pel_lugar,
-            }).set_index("Punto de ruta")
+        # línea de peligrosidad
+        df_line = pd.DataFrame({
+            "Punto de ruta": d_acum,
+            "Peligrosidad (zona)":  pel_zona,
+            "Peligrosidad (lugar)": pel_lugar,
+        }).set_index("Punto de ruta")
+        st.line_chart(df_line)
+    
+        # gráfico circular con tipos de accidente
+        tipos_tot = {}
+        for p in peligrosos:                       # sólo puntos marcados con aviso
+            for k, v in p["tipos_100"].items():
+                tipos_tot[k] = tipos_tot.get(k, 0) + v
+    
+        if tipos_tot:
+            fig, ax = plt.subplots()
+            ax.pie(tipos_tot.values(), labels=tipos_tot.keys(),
+                   autopct="%1.0f%%", startangle=90)
+            ax.set_title("Distribución de tipos de accidente")
+            ax.axis("equal")
+            st.pyplot(fig)
+        else:
+            st.info("No hay datos suficientes de tipos de accidente para esta ruta.")
 
-            st.line_chart(df_line)
-    
-            # gráfico circular con tipos de accidente (puntos con aviso)
-            tipos_tot = {}
-            for p in peligrosos:                 # solo los puntos marcados con aviso
-                for k, v in p["tipos_100"].items():
-                    tipos_tot[k] = tipos_tot.get(k, 0) + v
-            if tipos_tot:
-                fig, ax = plt.subplots()
-                ax.pie(tipos_tot.values(), labels=tipos_tot.keys(), autopct="%1.0f%%", startangle=90)
-                ax.set_title("Distribución de tipos de accidente")
-                ax.axis("equal")
-                st.pyplot(fig)
-            else:
-                st.info("No hay datos suficientes de tipos de accidente para esta ruta.")

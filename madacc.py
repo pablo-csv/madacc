@@ -198,7 +198,7 @@ else:
         # filtrar y ordenar por riesgo
         peligrosos = [p for p in info if p["n_clusteres"] > 0]
         peligrosos.sort(key=lambda p: (-p["n_clusteres"], -p["num_accs_10"], -p["num_accs_100"], -p["imp_10"], -p["imp_100"]))
-        top = peligrosos[:3]
+        top = peligrosos[:1]
 
         # avisos Gemini
         for p in top:
@@ -217,8 +217,8 @@ else:
             Adáptalo en función de los datos proporcionados y del significado de cada cifra.
             No des múltiples opciones. Genera el mensaje definitivo que se va a mostrar al conductor. No uses saltos de línea.
             """
-            #aviso = generate_warning(prompt=prompt, llm_model='gemini-2.0-flash-001', temperature=0.8)
-            aviso = 'sin gemini'
+            aviso = generate_warning(prompt=prompt, llm_model='gemini-2.0-flash-001', temperature=0.8)
+            #aviso = 'sin gemini'
 
             folium.Marker(
                 location=(p["lat"], p["lon"]),

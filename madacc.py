@@ -136,8 +136,8 @@ proj_utm = pyproj.Proj(proj="utm", zone=30, ellps="WGS84", south=False)
 
 df_accs, zonas = load_data()
 
-st.title("Simulación de rutas seguras en Madrid 🚗")
-st.markdown("Esta es una demostración de cómo calcularíamos la peligrosidad y generaríamos avisos durante una ruta real. Haz **dos clics** en el mapa: primero el **origen** y luego el **destino**. Después verás la ruta y los **avisos** en los puntos de siniestralidad.")
+st.title("Simulación de rutas en Madrid 🚗")
+st.markdown("Esta es una demostración de cómo calcularíamos la peligrosidad y generaríamos avisos durante una ruta real. Haz **dos clics** en el mapa: primero el **origen** y luego el **destino**. Después verás la ruta con **avisos** en los puntos de alta siniestralidad y podrás generar estadísticas.")
 
 # estado de la selección
 for k in ("origin", "destination"): st.session_state.setdefault(k, None)

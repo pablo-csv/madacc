@@ -2,3 +2,12 @@ nest_asyncio
 streamlit
 google-genai
 google-cloud-aiplatform
+folium
+streamlit-folium
+osmnx
+networkx
+pandas
+geopandas
+numpy
+pyproj
+shapely

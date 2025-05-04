@@ -279,10 +279,11 @@ else:
             "Lugar (10 m a la redonda)":    pel_10,
         }).set_index("Punto de ruta")
 
-        st.markdown("#### Número de accidentes anuales por cada 100 m² (por zona y lugar)")
+        st.markdown("#### Número de accidentes anuales por 100 m² (en cada punto de la ruta)")
         st.line_chart(df_line)
     
         # gráfico circular con tipos de accidente
+        st.markdown("#### Tipos de accidentes más frecuentes en la ruta")
         tipos_tot = {}
         for p in peligrosos:  # solo puntos marcados con aviso
             for k, v in p["tipos_100"].items():
@@ -312,7 +313,7 @@ else:
                 autopct="%1.0f%%",
                 startangle=90
             )
-            ax.set_title("Distribución de tipos de accidente")
+            #ax.set_title("Distribución de tipos de accidente")
             ax.axis("equal")
             st.pyplot(fig)
         else:

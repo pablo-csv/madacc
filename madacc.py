@@ -25,6 +25,18 @@ from google import genai          # ← credenciales ya configuradas
 from google.genai import types
 
 
+# credenciales GCP
+# 1. Tomar el contenido del secret (el JSON como string)
+service_account_info = st.secrets["gcp"]["service_account"]
+
+# 2. Guardarlo en un archivo temporal (p.e., "gcp_credentials.json")
+with open("gcp_credentials.json", "w") as f:
+    f.write(service_account_info)
+
+# 3. Ajustar la variable de entorno para que las librerías de Google lo detecten
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gcp_credentials.json"
+
+
 # ---------- utilidades ------------------------------------------------------
 
 @st.cache_data

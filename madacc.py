@@ -257,8 +257,8 @@ else:
         
         # extraer variables por punto
         pel_clus  = np.array([p["n_clusteres"]   for p in info])
-        pel_100   = np.array([10_000 * (p["num_accs_100"]/(3.1415*(100**2)))  for p in info])
-        pel_10    = np.array([10_000 * (p["num_accs_10"]/(3.1415*(10**2)))   for p in info])
+        pel_100   = np.array([1/4 * (p["num_accs_100"]/(3.1415*(100**2)))  for p in info])
+        pel_10    = np.array([1/4 * (p["num_accs_10"]/(3.1415*(10**2)))   for p in info])
         
         # score por punto
         score_punto = w_cl * pel_clus + w_100 * pel_100 + w_10 * pel_10

@@ -11,3 +11,4 @@ geopandas
 numpy
 pyproj
 shapely
+scikit-learn

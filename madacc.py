@@ -253,7 +253,7 @@ else:
         d_acum = list(range(len(puntos_ruta)))
     
         # pesos
-        w_cl, w_100, w_10 = 0, 10, 20   # los pesos pueden cambiarse
+        w_cl, w_100, w_10 = 0, 100, 100   # los pesos pueden cambiarse
         
         # extraer variables por punto
         pel_clus  = np.array([p["n_clusteres"]   for p in info])

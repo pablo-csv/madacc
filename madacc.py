@@ -253,7 +253,7 @@ else:
         d_acum = list(range(len(puntos_ruta)))
     
         # pesos
-        w_cl, w_100, w_10 = 10, 1, 2
+        w_cl, w_100, w_10 = 30, 1, 2
         
         # extraer variables por punto
         pel_clus  = np.array([p["n_clusteres"]   for p in info])
@@ -268,14 +268,14 @@ else:
     
         # ── panel de resultados ─────────────────────
         st.subheader("📈 Estadísticas de siniestralidad")
-        st.markdown(f"**Índice global de peligrosidad de la ruta:** `{score:0.1f}` (más alto ⇒ más peligrosa)")
+        st.markdown(f"**Índice global de peligrosidad de la ruta:** `{score:0.1f}` (más alto ⇒ más peligrosa. Media general: 270.0)")
     
         # línea de peligrosidad
         df_line = pd.DataFrame({
             "Punto de ruta": d_acum,
-            "Peligrosidad combinada": score_punto,
-            "Peligrosidad (100 m)":     pel_100,
-            "Peligrosidad (10 m)":      pel_10,
+            #"Peligrosidad combinada": score_punto,
+            "Peligrosidad (100 m)":   pel_100,
+            "Peligrosidad (10 m)":    pel_10,
         }).set_index("Punto de ruta")
         
         st.line_chart(df_line)

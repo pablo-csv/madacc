@@ -275,17 +275,38 @@ else:
     
         # gráfico circular con tipos de accidente
         tipos_tot = {}
-        for p in peligrosos:                       # sólo puntos marcados con aviso
+        for p in peligrosos:  # solo puntos marcados con aviso
             for k, v in p["tipos_100"].items():
                 tipos_tot[k] = tipos_tot.get(k, 0) + v
-    
+        
         if tipos_tot:
+            total_accidentes = sum(tipos_tot.values())
+        
+            tipos_agrupados = {}
+            otros = 0
+        
+            for tipo, count in tipos_tot.items():
+                porcentaje = 100 * count / total_accidentes
+                if porcentaje > 5:
+                    tipos_agrupados[tipo] = count
+                else:
+                    otros += count
+        
+            if otros > 0:
+                tipos_agrupados["Otros"] = otros
+        
+            # gráfico
             fig, ax = plt.subplots()
-            ax.pie(tipos_tot.values(), labels=tipos_tot.keys(),
-                   autopct="%1.0f%%", startangle=90)
+            ax.pie(
+                tipos_agrupados.values(),
+                labels=tipos_agrupados.keys(),
+                autopct="%1.0f%%",
+                startangle=90
+            )
             ax.set_title("Distribución de tipos de accidente")
             ax.axis("equal")
             st.pyplot(fig)
         else:
             st.info("No hay datos suficientes de tipos de accidente para esta ruta.")
+
 

@@ -208,11 +208,11 @@ else:
             Eres un asistente de navegación urbano para conductores de coche.
 
             El conductor se encuentra ahora mismo en una ubicación:
-            1. Donde hay de media {p['num_accs_100']/4:.2f} accidentes anuales en 100 m a la redonda (media general 0.875). Esto indica la siniestralidad en la zona.
-            2. Donde hay de media {p['num_accs_10']/4:.2f} accidentes anuales en 10 m a la redonda (media general 0.009). Esto indica la siniestralidad en el lugar concreto.
-            3. Que está incluida en {p['n_clusteres']} clústeres de siniestralidad (media general 0.093).
-            4. Donde hay de media {p['imp_100']/4:.2f} personas implicadas al año en accidentes en 100 m (media general 2.044).
-            5. Donde hay de media {p['imp_10']/4:.2f} personas implicadas al año en accidentes en 10 m (media general 0.021).
+            1. Donde hay de media {p['num_accs_100']/4:.2f} accidentes anuales en 100 m a la redonda (media general 2.03). Esto indica la siniestralidad en la zona.
+            2. Donde hay de media {p['num_accs_10']/4:.2f} accidentes anuales en 10 m a la redonda (media general 0.02). Esto indica la siniestralidad en el lugar concreto.
+            3. Que está incluida en {p['n_clusteres']} clústeres de siniestralidad (media general 0.22).
+            4. Donde hay de media {p['imp_100']/4:.2f} personas implicadas al año en accidentes en 100 m (media general 4.74).
+            5. Donde hay de media {p['imp_10']/4:.2f} personas implicadas al año en accidentes en 10 m (media general 0.05).
             6. Donde los tipos de accidente son los siguientes: {p['tipos_100']}
 
             Genera un aviso corto, conciso, preciso y convincente para que el conductor adecúe su conducción.
@@ -253,12 +253,13 @@ else:
         d_acum = list(range(len(puntos_ruta)))
     
         # pesos
-        w_cl, w_100, w_10 = 0, 1, 2   # los pesos pueden cambiarse
+        w_cl, w_100, w_10 = 0, 10, 20   # los pesos pueden cambiarse
         
         # extraer variables por punto
         pel_clus  = np.array([p["n_clusteres"]   for p in info])
-        pel_100   = np.array([1/4 * (p["num_accs_100"]/(3.1415*(100**2)))  for p in info])
-        pel_10    = np.array([1/4 * (p["num_accs_10"]/(3.1415*(10**2)))   for p in info])
+        # número de accidentes por año por 100 metros cuadrados...
+        pel_100 = np.array([100/4 * (p["num_accs_100"]/(3.1415*(100**2)))  for p in info])   # ... en 100 metros a la redonda
+        pel_10  = np.array([100/4 * (p["num_accs_10"]/(3.1415*(10**2)))   for p in info])    # ... en 10 metros a la redonda
         
         # score por punto
         score_punto = w_cl * pel_clus + w_100 * pel_100 + w_10 * pel_10
@@ -268,16 +269,17 @@ else:
     
         # ── panel de resultados ─────────────────────
         st.subheader("📈 Estadísticas de siniestralidad")
-        st.markdown(f"**Índice global de peligrosidad de la ruta:** `{score:0.1f}` (más alto ⇒ más peligrosa. Media general: 270.0)")
+        st.markdown(f"**Índice de peligrosidad de la ruta:** `{score:0.1f}` (más alto ⇒ más peligrosa. Media general: 270.0)")
     
         # línea de peligrosidad
         df_line = pd.DataFrame({
             "Punto de ruta": d_acum,
             #"Peligrosidad combinada": score_punto,
-            "Siniestralidad (100 m alrededor)":   pel_100,
-            "Siniestralidad (10 m alrededor)":    pel_10,
+            "Zona (100 m a la redonda)":   pel_100,
+            "Lugar (10 m a la redonda)":    pel_10,
         }).set_index("Punto de ruta")
-        
+
+        st.markdown("#### Número de accidentes anuales por 100 m² (zona y lugar)")
         st.line_chart(df_line)
     
         # gráfico circular con tipos de accidente

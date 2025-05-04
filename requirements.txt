@@ -12,3 +12,4 @@ numpy
 pyproj
 shapely
 scikit-learn
+matplotlib

@@ -269,7 +269,7 @@ else:
     
         # ── panel de resultados ─────────────────────
         st.subheader("📈 Estadísticas de siniestralidad")
-        st.markdown(f"**Índice de peligrosidad de la ruta:** `{score:0.1f}` (más alto ⇒ más peligrosa. Media general: 9.3)")
+        st.markdown(f"**Índice de peligrosidad de la ruta:** `{score:0.1f}` (más alto ⇒ más peligrosa. Media general: 7.3)")
     
         # línea de peligrosidad
         df_line = pd.DataFrame({

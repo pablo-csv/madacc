@@ -205,8 +205,8 @@ else:
             Adáptalo en función de los datos proporcionados y del significado de cada cifra.
             No des múltiples opciones. Genera el mensaje definitivo que se va a mostrar al conductor. No uses saltos de línea.
             """
-            aviso = generate_warning(prompt=prompt, llm_model='gemini-2.0-flash-001', temperature=0.8)
-            #aviso = 'sin gemini'
+            #aviso = generate_warning(prompt=prompt, llm_model='gemini-2.0-flash-001', temperature=0.8)
+            aviso = 'sin gemini'
 
             folium.Marker(
                 location=(p["lat"], p["lon"]),

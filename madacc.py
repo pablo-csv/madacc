@@ -279,7 +279,7 @@ else:
             "Lugar (10 m a la redonda)":    pel_10,
         }).set_index("Punto de ruta")
 
-        st.markdown("#### Número de accidentes anuales por 100 m² (zona y lugar)")
+        st.markdown("#### Número de accidentes anuales por cada 100 m² (por zona y lugar)")
         st.line_chart(df_line)
     
         # gráfico circular con tipos de accidente

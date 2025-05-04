@@ -252,25 +252,32 @@ else:
         # índice de puntos en la ruta
         d_acum = list(range(len(puntos_ruta)))
     
-        # peligrosidad por punto
-        w_cl, w_100, w_10 = 3, 0.5, 2
+        # pesos
+        w_cl, w_100, w_10 = 10, 1, 5
+        
+        # extraer variables por punto
         pel_zona  = np.array([p["n_clusteres"]   for p in info])
-        pel_lugar = np.array([p["num_accs_10"]   for p in info])
-        pel_comb  = w_cl*pel_zona + w_100*np.array([p["num_accs_100"] for p in info]) + w_10*pel_lugar
-    
-        # score global de la ruta (0–100)
-        score = np.clip(100 * pel_comb.mean() / pel_comb.max(), 0, 100)
+        pel_100   = np.array([p["num_accs_100"]  for p in info])
+        pel_10    = np.array([p["num_accs_10"]   for p in info])
+        
+        # score por punto
+        score_punto = w_cl * pel_zona + w_100 * pel_100 + w_10 * pel_10
+        
+        # score global como media
+        score = score_punto.mean()
     
         # ── panel de resultados ─────────────────────
         st.subheader("📈 Estadísticas de siniestralidad")
-        st.markdown(f"**Índice global de peligrosidad de la ruta:** `{score:0.1f}/100` (más alto ⇒ más peligrosa)")
+        st.markdown(f"**Índice global de peligrosidad de la ruta:** `{score:0.1f}` (más alto ⇒ más peligrosa)")
     
         # línea de peligrosidad
         df_line = pd.DataFrame({
             "Punto de ruta": d_acum,
-            "Peligrosidad (zona)":  pel_zona,
-            "Peligrosidad (lugar)": pel_lugar,
+            "Peligrosidad combinada": score_punto,
+            "Peligrosidad (100 m)":     pel_100,
+            "Peligrosidad (10 m)":      pel_10,
         }).set_index("Punto de ruta")
+        
         st.line_chart(df_line)
     
         # gráfico circular con tipos de accidente

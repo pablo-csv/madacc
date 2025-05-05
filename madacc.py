@@ -2,10 +2,8 @@
 # DEMO MADACC
 # -----------
 
-# -----------  añadido -----------
 import nest_asyncio
 nest_asyncio.apply()
-# --------------------------------
 
 import streamlit as st
 import folium
@@ -21,26 +19,19 @@ import geopandas as gpd
 import numpy as np
 import pyproj
 from shapely.geometry import Point
-import matplotlib.pyplot as plt           # para los gráficos
+import matplotlib.pyplot as plt
 
-from google import genai          # ← credenciales ya configuradas
+from google import genai          # credenciales ya configuradas
 from google.genai import types
 
 
 # credenciales GCP
-# 1. Tomar el contenido del secret (el JSON como string)
 service_account_info = st.secrets["gcp"]["service_account"]
-
-# 2. Guardarlo en un archivo temporal (p.e., "gcp_credentials.json")
 with open("gcp_credentials.json", "w") as f:
     f.write(service_account_info)
-
-# 3. Ajustar la variable de entorno para que las librerías de Google lo detecten
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gcp_credentials.json"
 
-
-# ---------- utilidades ------------------------------------------------------
-
+# funciones recurrentes
 @st.cache_data
 def load_data():
     return (
@@ -64,6 +55,7 @@ def get_genai_client():
         location="us-central1"
     )
 
+# funciones
 def calcular_metricas_siniestralidad(x_utm, y_utm, df_accs, zonas):
     punto       = Point(x_utm, y_utm)
     n_clusteres = zonas.geometry.contains(punto).sum()
@@ -114,14 +106,14 @@ def generate_warning(prompt, llm_model="gemini-2.0-flash-001", temperature=0.8):
         )],
     )
 
-    # ① llamada no-stream
+    # llamada no-stream
     response = client.models.generate_content(
         model    = llm_model,
         contents = contents,
         config   = generate_content_config,
     )
 
-    # ② extraer el texto completo del primer candidato
+    # extraer el texto completo
     full_text = "".join(
         part.text for part in response.candidates[0].content.parts
     )
@@ -129,7 +121,7 @@ def generate_warning(prompt, llm_model="gemini-2.0-flash-001", temperature=0.8):
     return full_text
 
 
-# proyección UTM zona 30 (Madrid)
+# tranformer para proyección UTM zona 30 (Madrid)
 proj_utm = pyproj.Proj(proj="utm", zone=30, ellps="WGS84", south=False)
 
 # ---------- interfaz --------------------------------------------------------
@@ -149,9 +141,7 @@ if st.session_state["origin"]:
 if st.session_state["destination"]:
     folium.Marker(st.session_state["destination"], tooltip="Destino", icon=folium.Icon(color="red")).add_to(base_map)
 
-# ---------------------------------------------------------------------------
-# 1) MOSTRAR MAPA BASE Y CAPTURAR CLICS ──────────── cuando falta origen/destino
-# ---------------------------------------------------------------------------
+# mostrar mapa y capturar clicks
 if not (st.session_state["origin"] and st.session_state["destination"]):
 
     out = st_folium(base_map, height=600, width=800)
@@ -165,9 +155,7 @@ if not (st.session_state["origin"] and st.session_state["destination"]):
             st.session_state["destination"] = (lat, lon)
             st.rerun()
 
-# ---------------------------------------------------------------------------
-# 2) CALCULAR RUTA Y MOSTRARLA ───────────────────── cuando ya hay origen y destino
-# ---------------------------------------------------------------------------
+# calcular la ruta y mostrarla
 else:
     with st.spinner("Calculando ruta y analizando siniestralidad..."):
         origin, dest = st.session_state["origin"], st.session_state["destination"]
@@ -232,9 +220,7 @@ else:
     time.sleep(0.1)
     st_folium(route_map, height=600, width=800, returned_objects=[])   # el returned_objects=[] es ESENCIAL para que el mapa no se siga actualizando
 
-    # ───────────────────────────────────────────────
-    # BOTONES: «Nueva ruta» y «Generar estadísticas»
-    # ───────────────────────────────────────────────
+    # sección de estadísticas
     col_btn1, col_btn2 = st.columns([1, 1], gap="small")
     
     with col_btn1:
@@ -245,9 +231,6 @@ else:
     with col_btn2:
         generate_stats = st.button("📊 Generar estadísticas")
     
-    # ───────────────────────────────────────────────
-    # ESTADÍSTICAS (fuera de las columnas ⇒ ancho completo)
-    # ───────────────────────────────────────────────
     if generate_stats:
         # índice de puntos en la ruta
         d_acum = list(range(len(puntos_ruta)))
